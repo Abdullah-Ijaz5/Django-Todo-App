@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My To-Do List</title>
+</head>
+<body>
+    <h1>My To-Do List</h1>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>Add a Task</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    <h2>My Tasks</h2>
+
+    {% if tasks %}
+        <ul>
+            {% for task in tasks %}
+                <li>
+                    <form method="post" action="{% url 'toggle_task' task.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="checkbox" onchange="this.form.submit()" {% if task.completed %}checked{% endif %}>
+                    </form>
+
+                    {% if task.completed %}
+                        <s>{{ task.title }}</s>
+                    {% else %}
+                        {{ task.title }}
+                    {% endif %}
+
+                    ({{ task.get_priority_display }})
+                    {% if task.due_date %} - due {{ task.due_date }}{% endif %}
+
+                    <a href="{% url 'edit_task' task.id %}">Edit</a>
+                    <a href="{% url 'delete_task' task.id %}">Delete</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tasks yet — add your first one above.</p>
+    {% endif %}
+</body>
+</html>
